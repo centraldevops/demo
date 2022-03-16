@@ -6,9 +6,11 @@ export BUILD_VERSION=`sed 's/BUILD_VERSION=//g' .env`
 export PROVISIONED=`dig +short cluster-manager.$CLOUDFLARE_ZONE_NAME`
 export KUBECTL_CMD=`which kubectl`
 
-echo "$LINODE_PRIVATE_KEY" > /tmp/.id_rsa
+echo "$DIGITALOCEAN_PRIVATE_KEY" > /tmp/.id_rsa
 
-chmod og-rwx /tmp/.id_rsa
+if [ -f "/tmp/.id_rsa" ]; then
+  chmod og-rwx /tmp/.id_rsa
+fi
 
 if [ -z "$KUBECTL_CMD" ]; then
   KUBECTL_CMD=./kubectl
@@ -23,9 +25,9 @@ if [ -z "$PROVISIONED" ]; then
 
   $TERRAFORM_CMD init
   $TERRAFORM_CMD apply -auto-approve \
-                       -var "linode_token=$LINODE_TOKEN" \
-                       -var "linode_public_key=$LINODE_PUBLIC_KEY" \
-                       -var "linode_private_key=$LINODE_PRIVATE_KEY" \
+                       -var "digitalocean_token=$DIGITALOCEAN_TOKEN" \
+                       -var "digitalocean_public_key=$DIGITALOCEAN_PUBLIC_KEY" \
+                       -var "digitalocean_private_key=$DIGITALOCEAN_PRIVATE_KEY" \
                        -var "cloudflare_email=$CLOUDFLARE_EMAIL" \
                        -var "cloudflare_api_key=$CLOUDFLARE_API_KEY" \
                        -var "cloudflare_zone_id=$CLOUDFLARE_ZONE_ID" \
