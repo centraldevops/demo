@@ -12,38 +12,38 @@ chmod og-rwx /tmp/.id_rsa
 export KUBECTL_CMD=`which kubectl`
 
 if [ -z "$KUBECTL_CMD" ]; then
-  KUBECTL_CMD=./kubectl
+	  KUBECTL_CMD=./kubectl
 fi
 
 # Define the terraform client used to provision the infrastructure.
 export TERRAFORM_CMD=`which terraform`
 
 if [ -z "$TERRAFORM_CMD" ]; then
-  TERRAFORM_CMD=./terraform
+	  TERRAFORM_CMD=./terraform
 fi
 
 # Check if the terraform settings environment is created.
 if [ ! -d "~/.terraform.d" ]; then
-  mkdir -p ~/.terraform.d
+	  mkdir -p ~/.terraform.d
 fi
 
 # Check if the terraform authentication settings is created.
 if [ ! -f "~/.terraform.d/credentials.tfrc.json" ]; then
-  # Create the credentials files.
-  cp credentials.tfrc.json /tmp
+	  # Create the credentials files.
+	    cp credentials.tfrc.json /tmp
 
-  sed -i -e 's|${TERRAFORM_TOKEN}|'"$TERRAFORM_TOKEN"'|g' /tmp/credentials.tfrc.json
+	      sed -i -e 's|${TERRAFORM_TOKEN}|'"$TERRAFORM_TOKEN"'|g' /tmp/credentials.tfrc.json
 
-  mv /tmp/credentials.tfrc.json ~/.terraform.d
+	        mv /tmp/credentials.tfrc.json ~/.terraform.d
 fi
 
 # Execute the provisioning based on the IaC definition file (terraform.tf).
 $TERRAFORM_CMD init
 $TERRAFORM_CMD apply -auto-approve \
-                     -var "digitalocean_token=$DIGITALOCEAN_TOKEN" \
-                     -var "digitalocean_public_key=$DIGITALOCEAN_PUBLIC_KEY" \
-                     -var "digitalocean_private_key=$DIGITALOCEAN_PRIVATE_KEY" \
-                     -var "datadog_agent_key=$DATADOG_AGENT_KEY"
+	                     -var "digitalocean_token=$DIGITALOCEAN_TOKEN" \
+			                          -var "digitalocean_public_key=$DIGITALOCEAN_PUBLIC_KEY" \
+						                       -var "digitalocean_private_key=$DIGITALOCEAN_PRIVATE_KEY" \
+								                            -var "datadog_agent_key=$DATADOG_AGENT_KEY"
 
 # Get the IP of the cluster manager used to deploy the application.
 export CLUSTER_MANAGER_IP=$($TERRAFORM_CMD output -raw cluster-manager-ip)
