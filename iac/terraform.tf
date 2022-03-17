@@ -33,16 +33,16 @@ resource "digitalocean_ssh_key" "default" {
   public_key = var.digitalocean_public_key
 }
 
-resource "digitalocean_droplet" "cluster-manager" {
+resource "digitalocean_droplet" "centraldevops" {
   image    = "debian-10-x64"
-  name     = "cluster-manager"
+  name     = "centraldevops"
   region   = "nyc1"
   size     = "s-2vcpu-4gb"
   ssh_keys = [digitalocean_ssh_key.default.fingerprint]
 
   provisioner "remote-exec" {
     inline = [
-      "hostnamectl set-hostname cluster-manager",
+      "hostnamectl set-hostname centraldevops",
       "whoami",
       "apt -y update",
       "apt -y upgrade",
@@ -67,9 +67,9 @@ resource "digitalocean_droplet" "cluster-manager" {
     }
   }
 
-#resource "linode_instance" "cluster-manager" {
+#resource "linode_instance" "centraldevops" {
 #  image           = "linode/debian10"
-#  label           = "cluster-manager"
+#  label           = "centraldevops"
 #  region          = "us-east"
 #  type            = "g6-standard-1"
 #  authorized_keys = [ var.linode_public_key ]
@@ -77,12 +77,12 @@ resource "digitalocean_droplet" "cluster-manager" {
 
 }
 
-resource "cloudflare_record" "cluster-manager" {
+resource "cloudflare_record" "centraldevops" {
   zone_id = var.cloudflare_zone_id
-  name = "cluster-manager"
-  value = digitalocean_droplet.cluster-manager.ipv4_address
+  name = "centraldevops"
+  value = digitalocean_droplet.centraldevops.ipv4_address
   type = "A"
-  depends_on = [ digitalocean_droplet.cluster-manager ]
+  depends_on = [ digitalocean_droplet.centraldevops ]
 }
 
 #resource "linode_instance" "cluster-worker" {
@@ -92,7 +92,7 @@ resource "cloudflare_record" "cluster-manager" {
 #  type            = "g6-standard-1"
 #  authorized_keys = [ var.linode_public_key ]
 #  root_pass       = random_string.password.result
-#  depends_on = [ cloudflare_record.cluster-manager ]
+#  depends_on = [ cloudflare_record.centraldevops ]
 
 #  provisioner "remote-exec" {
 #    inline = [
@@ -100,7 +100,7 @@ resource "cloudflare_record" "cluster-manager" {
 #      "apt -y update",
 #      "apt -y install curl wget htop",
 #      "export K3S_TOKEN=${var.linode_token}",
-#      "export K3S_URL=https://cluster-manager.${var.cloudflare_zone_name}:6443",
+#      "export K3S_URL=https://centraldevops.${var.cloudflare_zone_name}:6443",
 #      "curl -sfL https://get.k3s.io | sh -",
 #      "export DD_AGENT_MAJOR_VERSION=7",
 #      "export DD_API_KEY=${var.datadog_agent_key}",
@@ -128,7 +128,7 @@ resource "cloudflare_record" "cluster-manager" {
 #  depends_on = [ linode_instance.cluster-worker ]
 #}
 
-resource "local_file" "cluster-manager-ip" {
-  content  = digitalocean_droplet.cluster-manager.ipv4_address
-  filename = "cluster-manager-ip"
+resource "local_file" "centraldevops-ip" {
+  content  = digitalocean_droplet.centraldevops.ipv4_address
+  filename = "centraldevops-ip"
 }
